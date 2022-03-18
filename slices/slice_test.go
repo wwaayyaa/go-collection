@@ -169,7 +169,7 @@ func TestSlice_Tap(t *testing.T) {
 	expected := 30
 	actual := 0
 	NewSliceCollection([]int{4, 5, 6}).
-		Tap(func(nums SliceCollection[int]) {
+		Tap(func(nums *SliceCollection[int]) {
 			actual = nums.Get(1) * nums.Get(2)
 		}).
 		All()
