@@ -6,7 +6,7 @@ import (
 )
 import "github.com/stretchr/testify/assert"
 
-func TestNewSlices(t *testing.T) {
+func TestNewSlice(t *testing.T) {
 	expected := []int{1, 2, 3}
 	actual := NewSlice[int](expected).All()
 	assert.ElementsMatch(t, expected, actual)
