@@ -1,9 +1,9 @@
 # go-collection
 
-`go collection` is a tool implemented using generics, it can help you process slice/map data quickly and easily convert between them.
+`go collection` is a tool implemented using generic, it can help you process slice/map data quickly and easily convert between them.
 
 
-### example 
+### Slice example 
 
 ```go
 // filter  
@@ -26,6 +26,6 @@ NewSlices[string]([]string{"world", "girl"}).
 
 
 
-### Maps
+### Maps example
 Coming soon
 
