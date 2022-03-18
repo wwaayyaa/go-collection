@@ -1,6 +1,6 @@
 # go-collection
 
-`go collection` can help you process slice/map data quickly and easily convert between them.
+`go collection` is a tool implemented using generics, it can help you process slice/map data quickly and easily convert between them.
 
 
 ### example 
