@@ -26,7 +26,7 @@ type Slice[T any] struct {
 	items []T
 }
 
-func NewSlices[T any](v []T) Slice[T] {
+func NewSlice[T any](v []T) Slice[T] {
 	if v == nil {
 		return Slice[T]{}
 	}
@@ -84,7 +84,7 @@ func (co Slice[T]) Map(fn func(int, T) T) Slice[T] {
 	for k, v := range co.items {
 		ret = append(ret, fn(k, v))
 	}
-	return NewSlices(ret)
+	return NewSlice(ret)
 }
 
 func (co Slice[T]) Transform(fn func(int, T) T) Slice[T] {
@@ -109,7 +109,7 @@ func (co Slice[T]) Filter(fn func(T) bool) Slice[T] {
 			ret = append(ret, v)
 		}
 	}
-	return NewSlices(ret)
+	return NewSlice(ret)
 }
 func (co Slice[T]) Except(fn func(T) bool) Slice[T] {
 	var ret []T
@@ -118,7 +118,7 @@ func (co Slice[T]) Except(fn func(T) bool) Slice[T] {
 			ret = append(ret, v)
 		}
 	}
-	return NewSlices(ret)
+	return NewSlice(ret)
 }
 
 func (co Slice[T]) Join(fn func(T) string, sep string) string {
@@ -132,7 +132,7 @@ func (co Slice[T]) Join(fn func(T) string, sep string) string {
 func (co Slice[T]) Clone() Slice[T] {
 	clone := make([]T, co.Length())
 	copy(clone, co.items)
-	return NewSlices(clone)
+	return NewSlice(clone)
 }
 
 func (co Slice[T]) Tap(fn func(Slice[T])) Slice[T] {
