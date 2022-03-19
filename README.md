@@ -38,5 +38,11 @@ All() // ["hello world", "hello girl"]
 
 ### Maps example
 
-Coming soon
+```go
+//["a", "z"]
+NewMapCollection(map[string]int{"a": 1, "z": 100}).Keys()
+
+//[1, 100]
+NewMapCollection(map[string]int{"a": 1, "z": 100}).Values()
+```
 
