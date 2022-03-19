@@ -233,3 +233,27 @@ func TestSliceCollection_Slice(t *testing.T) {
 	assert.Equal(t, expected, actual)
 	assert.Equal(t, expected, actual1)
 }
+
+func TestSliceCollection_Prepend(t *testing.T) {
+	expected := []int{0, 1, 2, 3}
+	actual := NewSliceCollection([]int{1, 2, 3}).Prepend(0).All()
+	assert.Equal(t, expected, actual)
+}
+
+func TestReduce(t *testing.T) {
+	expected := "let go 123"
+	actual := Reduce[int, string](NewSliceCollection([]int{1, 2, 3}).All(), func(v int, last string) string {
+		return last + strconv.Itoa(v)
+	}, "let go ")
+	assert.Equal(t, expected, actual)
+}
+
+func TestSliceCollection_Chunk(t *testing.T) {
+	expected := [][]int{{0, 1}, {2, 3}, {4}}
+	result := NewSliceCollection([]int{0, 1, 2, 3, 4}).Chunk(2)
+	var actual = make([][]int, len(result))
+	for k, v := range result {
+		actual[k] = v.All()
+	}
+	assert.Equal(t, expected, actual)
+}

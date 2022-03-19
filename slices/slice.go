@@ -18,7 +18,7 @@ The following features require version 1.19 to allow methods to have type parame
 		* This R is the type we want
 	}
 
-  when groupBy keyBy reduce
+  when groupBy keyBy
   split chunk
 
 */
@@ -204,4 +204,38 @@ func (co *SliceCollection[T]) Slice(offset int, length ...int) *SliceCollection[
 	return NewSliceCollection(co.items[offset:(offset + length[0])])
 }
 
-//TODO unique Shuffle Split Splice Reduce
+func (co *SliceCollection[T]) Prepend(v T) *SliceCollection[T] {
+	co.items = append([]T{v}, co.items...)
+	return co
+}
+
+func (co *SliceCollection[T]) Chunk(n int) (ret []*SliceCollection[T]) {
+	i := 1
+	var chunk []T
+	for _, v := range co.items {
+		chunk = append(chunk, v)
+		if i += 1; i > n {
+			i, ret = 1, append(ret, NewSliceCollection(chunk))
+			chunk = []T{}
+		}
+	}
+	if len(chunk) > 0 {
+		ret = append(ret, NewSliceCollection(chunk))
+	}
+
+	return ret
+}
+
+// 1.18 not allow type parameters in methods
+// In order to increase flexibility, return any type, so it can only be a function independently.
+// https://github.com/golang/go/issues/49085
+
+func Reduce[T, R any](d []T, h func(T, R) R, init R) R {
+	ret := init
+	for _, v := range d {
+		ret = h(v, ret)
+	}
+	return ret
+}
+
+//TODO unique Shuffle Splice
