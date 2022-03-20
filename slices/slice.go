@@ -281,6 +281,22 @@ func (co *SliceCollection[T]) Shuffle() *SliceCollection[T] {
 	return co
 }
 
+func (co *SliceCollection[T]) Keys() []int {
+	var ret []int
+	for k, _ := range co.items {
+		ret = append(ret, k)
+	}
+	return ret
+}
+
+func (co *SliceCollection[T]) Values() []T {
+	var ret []T
+	for _, v := range co.items {
+		ret = append(ret, v)
+	}
+	return ret
+}
+
 func (co *SliceCollection[T]) Only(keys []int) *SliceCollection[T] {
 	var ret []T
 	for _, key := range keys {
@@ -293,8 +309,8 @@ func (co *SliceCollection[T]) Only(keys []int) *SliceCollection[T] {
 
 func (co *SliceCollection[T]) Except(keys []int) *SliceCollection[T] {
 	var ret []T
-	for _, key := range keys {
-		if v, ok := co.Get(key); !ok {
+	for _, key := range NewSliceCollection(co.Keys()).Diff(keys).All() {
+		if v, ok := co.Get(key); ok {
 			ret = append(ret, v)
 		}
 	}

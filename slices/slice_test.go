@@ -297,3 +297,12 @@ func TestSliceCollection_Concat(t *testing.T) {
 	actual := NewSliceCollection([]int{1, 2}).Concat([]int{3, 4}).All()
 	assert.Equal(t, expected, actual)
 }
+
+func TestSliceCollection_OnlyAndExcept(t *testing.T) {
+	expected := []int{1, 4}
+	data := NewSliceCollection([]int{1, 2, 3, 4})
+	assert.Equal(t, expected, data.Only([]int{0, 3}).All())
+
+	expected = []int{2, 3}
+	assert.Equal(t, expected, data.Except([]int{0, 3}).All())
+}
