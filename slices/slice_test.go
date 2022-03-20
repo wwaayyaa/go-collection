@@ -136,7 +136,7 @@ func TestSlice_Filter(t *testing.T) {
 func TestSlice_Except(t *testing.T) {
 	expected := []int{4, 5, 6}
 	actual := NewSliceCollection([]int{1, 2, 3, 4, 5, 6}).
-		Except(func(x int) bool { return x <= 3 }).
+		Reject(func(x int) bool { return x <= 3 }).
 		All()
 	assert.ElementsMatch(t, expected, actual)
 
@@ -147,7 +147,7 @@ func TestSlice_Except(t *testing.T) {
 	people := []People{{Name: "jack", Age: 12}, {Name: "bob", Age: 32}, {Name: "jack", Age: 23}}
 	expected2 := people[:2]
 	actual2 := NewSliceCollection(people).
-		Except(func(x People) bool { return x.Name == "jack" && x.Age == 23 }).
+		Reject(func(x People) bool { return x.Name == "jack" && x.Age == 23 }).
 		All()
 	assert.ElementsMatch(t, expected2, actual2)
 }
@@ -155,7 +155,7 @@ func TestSlice_Except(t *testing.T) {
 func TestSlice_Join(t *testing.T) {
 	expected := "4-5-6"
 	actual := NewSliceCollection([]int{1, 2, 3, 4, 5, 6}).
-		Except(func(x int) bool { return x <= 3 }).
+		Reject(func(x int) bool { return x <= 3 }).
 		Join(func(v int) string { return strconv.Itoa(v) }, "-")
 	assert.Equal(t, expected, actual)
 }
@@ -209,6 +209,23 @@ func TestSliceCollection_Pop(t *testing.T) {
 func TestSliceCollection_Push(t *testing.T) {
 	expected := []int{1, 2}
 	actual := NewSliceCollection([]int{1}).Push(2).All()
+	assert.Equal(t, expected, actual)
+}
+func TestSliceCollection_Shift(t *testing.T) {
+	co := NewSliceCollection([]int{1, 2, 3})
+	actual, ok := co.Shift()
+	assert.Equal(t, true, ok)
+	assert.Equal(t, []int{2, 3}, co.All())
+	assert.Equal(t, 1, actual)
+
+	actual, ok = NewSliceCollection([]int{}).Shift()
+	assert.Equal(t, false, ok)
+	assert.Equal(t, 0, actual)
+}
+
+func TestSliceCollection_Delete(t *testing.T) {
+	expected := []int{5, 7, 8}
+	actual := NewSliceCollection([]int{5, 6, 7, 8}).Delete(1).All()
 	assert.Equal(t, expected, actual)
 }
 
@@ -273,4 +290,10 @@ func TestGroupBy(t *testing.T) {
 
 func TestSliceCollection_Shuffle(t *testing.T) {
 	t.Logf("%+v", NewSliceCollection([]int{1, 2, 3, 4, 5}).Shuffle().All())
+}
+
+func TestSliceCollection_Concat(t *testing.T) {
+	expected := []int{1, 2, 3, 4}
+	actual := NewSliceCollection([]int{1, 2}).Concat([]int{3, 4}).All()
+	assert.Equal(t, expected, actual)
 }

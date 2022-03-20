@@ -10,7 +10,7 @@ import (
 /*
 TODO
 The following functions are achievable and will be updated soon：
-  forget delete concat put shift sortBy sortByDesc splice flatten pluck
+  forget delete concat sortBy sortByDesc splice pluck
   sum avg max min median
 
 The following features require version 1.19 to allow methods to have type parameters. Because most of them return arbitrary types on demand.
@@ -53,6 +53,11 @@ func (co *SliceCollection[T]) First() (ret T, _ bool) {
 
 func (co *SliceCollection[T]) Last() (ret T, _ bool) {
 	return co.Get(co.Len() - 1)
+}
+
+func (co *SliceCollection[T]) Put(i int, v T) *SliceCollection[T] {
+	co.items[i] = v
+	return co
 }
 
 func (co *SliceCollection[T]) Find(fn func(T, int) bool) (ret T, _ bool) {
@@ -115,7 +120,7 @@ func (co *SliceCollection[T]) Filter(fn func(T, int) bool) *SliceCollection[T] {
 	}
 	return NewSliceCollection(ret)
 }
-func (co *SliceCollection[T]) Except(fn func(T) bool) *SliceCollection[T] {
+func (co *SliceCollection[T]) Reject(fn func(T) bool) *SliceCollection[T] {
 	var ret []T
 	for _, v := range co.items {
 		if !fn(v) {
@@ -123,6 +128,11 @@ func (co *SliceCollection[T]) Except(fn func(T) bool) *SliceCollection[T] {
 		}
 	}
 	return NewSliceCollection(ret)
+}
+
+func (co *SliceCollection[T]) Concat(items []T) *SliceCollection[T] {
+	co.items = append(co.items, items...)
+	return co
 }
 
 func (co *SliceCollection[T]) Join(fn func(T) string, sep string) string {
@@ -208,6 +218,20 @@ func (co *SliceCollection[T]) Prepend(v T) *SliceCollection[T] {
 	return co
 }
 
+func (co *SliceCollection[T]) Shift() (T, bool) {
+	v, ok := co.Get(0)
+	if !ok {
+		return v, false
+	}
+	co.items = co.items[1:]
+	return v, true
+}
+
+func (co *SliceCollection[T]) Delete(i int) *SliceCollection[T] {
+	co.items = append(co.items[:i], co.items[i+1:]...)
+	return co
+}
+
 func (co *SliceCollection[T]) Chunk(n int) (ret [][]T) {
 	i := 1
 	var chunk []T
@@ -257,6 +281,26 @@ func (co *SliceCollection[T]) Shuffle() *SliceCollection[T] {
 	return co
 }
 
+func (co *SliceCollection[T]) Only(keys []int) *SliceCollection[T] {
+	var ret []T
+	for _, key := range keys {
+		if v, ok := co.Get(key); ok {
+			ret = append(ret, v)
+		}
+	}
+	return NewSliceCollection(ret)
+}
+
+func (co *SliceCollection[T]) Except(keys []int) *SliceCollection[T] {
+	var ret []T
+	for _, key := range keys {
+		if v, ok := co.Get(key); !ok {
+			ret = append(ret, v)
+		}
+	}
+	return NewSliceCollection(ret)
+}
+
 // 1.18 not allow type parameters in methods
 // In order to increase flexibility, return any type, so it can only be a function independently.
 // https://github.com/golang/go/issues/49085
@@ -294,4 +338,12 @@ func GroupBy[T any, U comparable](items []T, it func(T, int) U) map[U][]T {
 	return result
 }
 
-//TODO Splice
+func Flatten[T any](items [][]T) []T {
+	var result []T
+
+	for _, item := range items {
+		result = append(result, item...)
+	}
+
+	return result
+}
