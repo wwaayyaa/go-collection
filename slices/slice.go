@@ -56,45 +56,45 @@ func (co *SliceCollection[T]) Last() (ret T, _ bool) {
 	return co.Get(co.Len() - 1)
 }
 
-func (co *SliceCollection[T]) Find(fn func(int, T) bool) (ret T, _ bool) {
-	for k, v := range co.items {
-		if fn(k, v) {
+func (co *SliceCollection[T]) Find(fn func(T, int) bool) (ret T, _ bool) {
+	for i, v := range co.items {
+		if fn(v, i) {
 			return v, true
 		}
 	}
 	return ret, false
 }
 
-func (co *SliceCollection[T]) Index(fn func(int, T) bool) int {
-	for k, v := range co.items {
-		if fn(k, v) {
-			return k
+func (co *SliceCollection[T]) Index(fn func(T, int) bool) int {
+	for i, v := range co.items {
+		if fn(v, i) {
+			return i
 		}
 	}
 	return -1
 }
 
 //Each cannot change self
-func (co *SliceCollection[T]) Each(fn func(int, T) bool) *SliceCollection[T] {
-	for k, v := range co.items {
-		if !fn(k, v) {
+func (co *SliceCollection[T]) Each(fn func(T, int) bool) *SliceCollection[T] {
+	for i, v := range co.items {
+		if !fn(v, i) {
 			break
 		}
 	}
 	return co
 }
 
-func (co *SliceCollection[T]) Map(fn func(int, T) T) *SliceCollection[T] {
+func (co *SliceCollection[T]) Map(fn func(T, int) T) *SliceCollection[T] {
 	var ret []T
-	for k, v := range co.items {
-		ret = append(ret, fn(k, v))
+	for i, v := range co.items {
+		ret = append(ret, fn(v, i))
 	}
 	return NewSliceCollection(ret)
 }
 
-func (co *SliceCollection[T]) Transform(fn func(int, T) T) *SliceCollection[T] {
-	for k, v := range co.items {
-		co.items[k] = fn(k, v)
+func (co *SliceCollection[T]) Transform(fn func(T, int) T) *SliceCollection[T] {
+	for i, v := range co.items {
+		co.items[i] = fn(v, i)
 	}
 	return co
 }
@@ -103,14 +103,14 @@ func (co *SliceCollection[T]) All() []T {
 	return co.items
 }
 
-func (co *SliceCollection[T]) Contains(fn func(int, T) bool) bool {
+func (co *SliceCollection[T]) Contains(fn func(T, int) bool) bool {
 	return co.Index(fn) != -1
 }
 
-func (co *SliceCollection[T]) Filter(fn func(T) bool) *SliceCollection[T] {
+func (co *SliceCollection[T]) Filter(fn func(T, int) bool) *SliceCollection[T] {
 	var ret []T
-	for _, v := range co.items {
-		if fn(v) {
+	for i, v := range co.items {
+		if fn(v, i) {
 			ret = append(ret, v)
 		}
 	}
@@ -156,8 +156,8 @@ func (co *SliceCollection[T]) Empty() bool {
 func (co *SliceCollection[T]) Diff(target []T) *SliceCollection[T] {
 	var different []T
 	t := NewSliceCollection(target)
-	co.Each(func(i int, v T) bool {
-		if _, ok := t.Find(func(_ int, _v T) bool { return cmp.Equal(_v, v) }); !ok {
+	co.Each(func(v T, i int) bool {
+		if _, ok := t.Find(func(_v T, _ int) bool { return cmp.Equal(_v, v) }); !ok {
 			different = append(different, v)
 		}
 		return true

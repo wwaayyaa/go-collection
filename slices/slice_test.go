@@ -55,7 +55,7 @@ func TestSlice_Find(t *testing.T) {
 	}
 	people := []People{{Name: "jack"}, {Name: "bob"}}
 	expected1 := people[1]
-	actual1, _ := NewSliceCollection(people).Find(func(k int, p People) bool { return p.Name == "bob" })
+	actual1, _ := NewSliceCollection(people).Find(func(p People, _ int) bool { return p.Name == "bob" })
 	assert.Equal(t, expected1, actual1)
 }
 
@@ -65,7 +65,7 @@ func TestSlice_Index(t *testing.T) {
 	}
 	people := []People{{Name: "jack"}, {Name: "bob"}}
 	expected1 := 0
-	actual1 := NewSliceCollection(people).Index(func(k int, p People) bool { return p.Name == "jack" })
+	actual1 := NewSliceCollection(people).Index(func(p People, _ int) bool { return p.Name == "jack" })
 	assert.Equal(t, expected1, actual1)
 }
 
@@ -87,7 +87,7 @@ func TestSlice_Map(t *testing.T) {
 	assert.ElementsMatch(t, expected, actual)
 
 	expected1 := []string{"hello world", "hello girl"}
-	actual1 := NewSliceCollection([]string{"world", "girl"}).Map(func(k int, v string) string { return "hello " + v }).All()
+	actual1 := NewSliceCollection([]string{"world", "girl"}).Map(func(v string, _ int) string { return "hello " + v }).All()
 	assert.ElementsMatch(t, expected1, actual1)
 }
 
@@ -102,23 +102,23 @@ func TestSlice_Transform(t *testing.T) {
 
 func TestSlice_Contains(t *testing.T) {
 	expected := true
-	actual := NewSliceCollection([]string{"hello", "fine"}).Contains(func(k int, v string) bool { return v == "fine" })
+	actual := NewSliceCollection([]string{"hello", "fine"}).Contains(func(v string, _ int) bool { return v == "fine" })
 	assert.Equal(t, expected, actual)
 
 	expected = false
-	actual = NewSliceCollection([]string{"hello", "fine"}).Contains(func(k int, v string) bool { return v == "fire" })
+	actual = NewSliceCollection([]string{"hello", "fine"}).Contains(func(v string, _ int) bool { return v == "fire" })
 	assert.Equal(t, expected, actual)
 }
 
 func TestSlice_Filter(t *testing.T) {
 	expected := []int{1, 2, 3}
 	actual := NewSliceCollection([]int{1, 2, 3, 4, 5, 6}).
-		Filter(func(x int) bool { return x <= 3 }).
+		Filter(func(_, x int) bool { return x <= 3 }).
 		All()
 	assert.ElementsMatch(t, expected, actual)
 
 	expected1 := []string{"test"}
-	actual1 := NewSliceCollection([]string{"asdasd", "123123", "test", "test123123"}).Filter(func(x string) bool { return x == "test" }).All()
+	actual1 := NewSliceCollection([]string{"asdasd", "123123", "test", "test123123"}).Filter(func(x string, _ int) bool { return x == "test" }).All()
 	assert.ElementsMatch(t, expected1, actual1)
 
 	type People struct {
@@ -128,7 +128,7 @@ func TestSlice_Filter(t *testing.T) {
 	people := []People{{Name: "jack", Age: 12}, {Name: "bob", Age: 32}, {Name: "jack", Age: 23}}
 	expected2 := people[2]
 	actual2, _ := NewSliceCollection(people).
-		Filter(func(x People) bool { return x.Name == "jack" && x.Age == 23 }).
+		Filter(func(x People, _ int) bool { return x.Name == "jack" && x.Age == 23 }).
 		First()
 	assert.Equal(t, expected2, actual2)
 }
