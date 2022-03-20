@@ -242,7 +242,7 @@ func TestSliceCollection_Prepend(t *testing.T) {
 
 func TestReduce(t *testing.T) {
 	expected := "let go 123"
-	actual := Reduce[int, string](NewSliceCollection([]int{1, 2, 3}).All(), func(v int, last string) string {
+	actual := Reduce[int, string](NewSliceCollection([]int{1, 2, 3}).All(), func(v int, last string, _ int) string {
 		return last + strconv.Itoa(v)
 	}, "let go ")
 	assert.Equal(t, expected, actual)
@@ -250,10 +250,27 @@ func TestReduce(t *testing.T) {
 
 func TestSliceCollection_Chunk(t *testing.T) {
 	expected := [][]int{{0, 1}, {2, 3}, {4}}
-	result := NewSliceCollection([]int{0, 1, 2, 3, 4}).Chunk(2)
-	var actual = make([][]int, len(result))
-	for k, v := range result {
-		actual[k] = v.All()
-	}
+	actual := NewSliceCollection([]int{0, 1, 2, 3, 4}).Chunk(2)
 	assert.Equal(t, expected, actual)
+}
+
+func TestSliceCollection_Uniq(t *testing.T) {
+	expected := []int{1, 2, 3, 4}
+	actual := NewSliceCollection([]int{1, 1, 2, 2, 3, 4, 1, 2, 3}).Uniq().All()
+	assert.Equal(t, expected, actual)
+}
+
+func TestGroupBy(t *testing.T) {
+	expected := map[string][]int{"yes": {0, 2}, "no": {1, 3}}
+	actual := GroupBy([]int{0, 1, 2, 3}, func(t int, i int) string {
+		if t%2 == 0 {
+			return "yes"
+		}
+		return "no"
+	})
+	assert.Equal(t, expected, actual)
+}
+
+func TestSliceCollection_Shuffle(t *testing.T) {
+	t.Logf("%+v", NewSliceCollection([]int{1, 2, 3, 4, 5}).Shuffle().All())
 }

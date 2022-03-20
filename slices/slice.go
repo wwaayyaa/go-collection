@@ -3,13 +3,14 @@ package slices
 import (
 	"encoding/json"
 	"github.com/google/go-cmp/cmp"
+	"math/rand"
 	"strings"
 )
 
 /*
 TODO
 The following functions are achievable and will be updated soon：
-  forget delete prepend concat put shift sortBy sortByDesc slice splice unique
+  forget delete concat put shift sortBy sortByDesc splice flatten pluck
   sum avg max min median
 
 The following features require version 1.19 to allow methods to have type parameters. Because most of them return arbitrary types on demand.
@@ -18,9 +19,7 @@ The following features require version 1.19 to allow methods to have type parame
 		* This R is the type we want
 	}
 
-  when groupBy keyBy
-  split chunk
-
+  when  keyBy
 */
 
 type SliceCollection[T any] struct {
@@ -85,7 +84,7 @@ func (co *SliceCollection[T]) Each(fn func(T, int) bool) *SliceCollection[T] {
 }
 
 func (co *SliceCollection[T]) Map(fn func(T, int) T) *SliceCollection[T] {
-	var ret []T
+	ret := make([]T, co.Len())
 	for i, v := range co.items {
 		ret = append(ret, fn(v, i))
 	}
@@ -209,33 +208,90 @@ func (co *SliceCollection[T]) Prepend(v T) *SliceCollection[T] {
 	return co
 }
 
-func (co *SliceCollection[T]) Chunk(n int) (ret []*SliceCollection[T]) {
+func (co *SliceCollection[T]) Chunk(n int) (ret [][]T) {
 	i := 1
 	var chunk []T
 	for _, v := range co.items {
 		chunk = append(chunk, v)
 		if i += 1; i > n {
-			i, ret = 1, append(ret, NewSliceCollection(chunk))
+			i, ret = 1, append(ret, chunk)
 			chunk = []T{}
 		}
 	}
 	if len(chunk) > 0 {
-		ret = append(ret, NewSliceCollection(chunk))
+		ret = append(ret, chunk)
 	}
 
 	return ret
+}
+
+func (co *SliceCollection[T]) Uniq() *SliceCollection[T] {
+	ret := NewSliceCollection([]T{})
+
+	for i, v := range co.items {
+		if !ret.Contains(func(r T, _ int) bool {
+			return cmp.Equal(r, v)
+		}) {
+			ret.Push(v)
+			continue
+		}
+
+		isEqual := false
+		for j, w := range co.items {
+			if i != j && cmp.Equal(v, w) {
+				isEqual = true
+			}
+		}
+		if !isEqual {
+			ret.Push(v)
+		}
+	}
+	return ret
+}
+
+func (co *SliceCollection[T]) Shuffle() *SliceCollection[T] {
+	rand.Shuffle(co.Len(), func(i, j int) {
+		co.items[i], co.items[j] = co.items[j], co.items[i]
+	})
+
+	return co
 }
 
 // 1.18 not allow type parameters in methods
 // In order to increase flexibility, return any type, so it can only be a function independently.
 // https://github.com/golang/go/issues/49085
 
-func Reduce[T, R any](d []T, h func(T, R) R, init R) R {
-	ret := init
-	for _, v := range d {
-		ret = h(v, ret)
+func Reduce[T, R any](d []T, h func(T, R, int) R, init R) R {
+	for i, v := range d {
+		init = h(v, init, i)
 	}
-	return ret
+	return init
 }
 
-//TODO unique Shuffle Splice
+func FlatMap[T, R any](items []T, it func(T, int) []R) []R {
+	var result []R
+
+	for i, v := range items {
+		result = append(result, it(v, i)...)
+	}
+
+	return result
+}
+
+func GroupBy[T any, U comparable](items []T, it func(T, int) U) map[U][]T {
+	result := map[U][]T{}
+
+	for i, item := range items {
+		key := it(item, i)
+
+		if _, ok := result[key]; !ok {
+			result[key] = []T{}
+		}
+
+		result[key] = append(result[key], item)
+	}
+
+	return result
+}
+
+//TODO Splice
