@@ -2,6 +2,7 @@ package slices
 
 import (
 	"strconv"
+	"strings"
 	"testing"
 )
 import "github.com/stretchr/testify/assert"
@@ -305,4 +306,30 @@ func TestSliceCollection_OnlyAndExcept(t *testing.T) {
 
 	expected = []int{2, 3}
 	assert.Equal(t, expected, data.Except([]int{0, 3}).All())
+}
+
+func TestKeyBy(t *testing.T) {
+	expected := map[string]string{"a": "abc", "b": "book"}
+	actual := KeyBy([]string{"abc", "book"}, func(s string) string {
+		return s[0:1]
+	})
+	assert.Equal(t, expected, actual)
+}
+
+func TestFlatten(t *testing.T) {
+	expected := []string{"a", "b", "c", "d"}
+	actual := Flatten([][]string{{"a", "b"}, {"c", "d"}})
+	assert.Equal(t, expected, actual)
+}
+
+func TestFlatMap(t *testing.T) {
+	expected := []int{11, 12, 2, 34, 4}
+	actual := FlatMap([]string{"11.12", "2", "34.4"}, func(v string, _ int) (ret []int) {
+		for _, s := range strings.Split(v, ".") {
+			n, _ := strconv.Atoi(s)
+			ret = append(ret, n)
+		}
+		return ret
+	})
+	assert.Equal(t, expected, actual)
 }

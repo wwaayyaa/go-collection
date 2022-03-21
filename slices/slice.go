@@ -354,6 +354,17 @@ func GroupBy[T any, U comparable](items []T, it func(T, int) U) map[U][]T {
 	return result
 }
 
+func KeyBy[K comparable, V any](items []V, fn func(V) K) map[K]V {
+	result := make(map[K]V, len(items))
+
+	for _, v := range items {
+		k := fn(v)
+		result[k] = v
+	}
+
+	return result
+}
+
 func Flatten[T any](items [][]T) []T {
 	var result []T
 
