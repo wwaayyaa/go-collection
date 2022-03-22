@@ -2,6 +2,7 @@ package maps
 
 import (
 	"github.com/stretchr/testify/assert"
+	go_collection "github.com/wwaayyaa/go-collection"
 	"testing"
 )
 
@@ -36,6 +37,18 @@ func TestMapCollection_Keys(t *testing.T) {
 func TestMapCollection_Values(t *testing.T) {
 	expected := []int{1, 100}
 	actual := NewMapCollection(map[string]int{"a": 1, "z": 100}).Values()
+	assert.Equal(t, expected, actual)
+}
+
+func TestMapCollection_Entries(t *testing.T) {
+	expected := []go_collection.Entry[string, int]{{"a", 1}, {"b", 2}}
+	actual := NewMapCollection(map[string]int{"a": 1, "b": 2}).Entries()
+	assert.ElementsMatch(t, expected, actual)
+}
+
+func TestMapCollection_FromEntries(t *testing.T) {
+	expected := map[string]int{"a": 1, "b": 2}
+	actual := NewMapCollection(map[string]int{}).FromEntries([]go_collection.Entry[string, int]{{"a", 1}, {"b", 2}}).All()
 	assert.Equal(t, expected, actual)
 }
 
