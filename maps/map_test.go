@@ -31,13 +31,13 @@ func TestMapCollection_Empty(t *testing.T) {
 func TestMapCollection_Keys(t *testing.T) {
 	expected := []string{"a", "z"}
 	actual := NewMapCollection(map[string]int{"a": 1, "z": 100}).Keys()
-	assert.Equal(t, expected, actual)
+	assert.ElementsMatch(t, expected, actual)
 }
 
 func TestMapCollection_Values(t *testing.T) {
 	expected := []int{1, 100}
 	actual := NewMapCollection(map[string]int{"a": 1, "z": 100}).Values()
-	assert.Equal(t, expected, actual)
+	assert.ElementsMatch(t, expected, actual)
 }
 
 func TestMapCollection_Entries(t *testing.T) {

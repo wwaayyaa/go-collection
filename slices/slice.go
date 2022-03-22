@@ -88,7 +88,7 @@ func (co *SliceCollection[T]) Each(fn func(T, int) bool) *SliceCollection[T] {
 func (co *SliceCollection[T]) Map(fn func(T, int) T) *SliceCollection[T] {
 	ret := make([]T, co.Len())
 	for i, v := range co.items {
-		ret = append(ret, fn(v, i))
+		ret[i] = fn(v, i)
 	}
 	return NewSliceCollection(ret)
 }
@@ -250,22 +250,12 @@ func (co *SliceCollection[T]) Chunk(n int) (ret [][]T) {
 func (co *SliceCollection[T]) Uniq() *SliceCollection[T] {
 	ret := NewSliceCollection([]T{})
 
-	for i, v := range co.items {
+	for _, v := range co.items {
 		if !ret.Contains(func(r T, _ int) bool {
 			return cmp.Equal(r, v)
 		}) {
 			ret.Push(v)
 			continue
-		}
-
-		isEqual := false
-		for j, w := range co.items {
-			if i != j && cmp.Equal(v, w) {
-				isEqual = true
-			}
-		}
-		if !isEqual {
-			ret.Push(v)
 		}
 	}
 	return ret

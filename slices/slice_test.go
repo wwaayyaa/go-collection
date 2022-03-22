@@ -15,15 +15,18 @@ func TestNewSlice(t *testing.T) {
 	expected1 := []string{"a", "c", "zzzz"}
 	actual1 := NewSliceCollection(expected1).All()
 	assert.ElementsMatch(t, expected1, actual1)
+
+	var n []int
+	assert.ElementsMatch(t, 0, NewSliceCollection(n).Len())
 }
 
-func TestSlice_Length(t *testing.T) {
+func TestSliceCollection_Length(t *testing.T) {
 	expected := 3
 	actual := NewSliceCollection([]int{1, 2, 3}).Len()
 	assert.Equal(t, expected, actual)
 }
 
-func TestSlice_Get(t *testing.T) {
+func TestSliceCollection_Get(t *testing.T) {
 	expected := 33
 	actual, _ := NewSliceCollection([]int{1, 2, 33}).Get(2)
 	assert.Equal(t, expected, actual)
@@ -36,7 +39,7 @@ func TestSlice_Get(t *testing.T) {
 	assert.Equal(t, expected1, actual1)
 }
 
-func TestSlice_First(t *testing.T) {
+func TestSliceCollection_First(t *testing.T) {
 	expected := 1
 	actual, _ := NewSliceCollection([]int{1, 2, 33}).First()
 	assert.Equal(t, expected, actual)
@@ -46,8 +49,20 @@ func TestSlice_First(t *testing.T) {
 	assert.Equal(t, expected1, actual1)
 }
 
-func TestSlice_Find(t *testing.T) {
-	expected := 2
+func TestSliceCollection_Last(t *testing.T) {
+	expected := 3
+	actual, _ := NewSliceCollection([]int{1, 2, 3}).Last()
+	assert.Equal(t, expected, actual)
+}
+
+func TestSliceCollection_Put(t *testing.T) {
+	expected := []int{1, 2, 3}
+	actual := NewSliceCollection([]int{1, 1, 3}).Put(1, 2).All()
+	assert.Equal(t, expected, actual)
+}
+
+func TestSliceCollection_Find(t *testing.T) {
+	expected := 33
 	actual, _ := NewSliceCollection([]int{1, 2, 33, 2}).Find(func(k, i int) bool { return i == 2 })
 	assert.Equal(t, expected, actual)
 
@@ -60,7 +75,7 @@ func TestSlice_Find(t *testing.T) {
 	assert.Equal(t, expected1, actual1)
 }
 
-func TestSlice_Index(t *testing.T) {
+func TestSliceCollection_Index(t *testing.T) {
 	type People struct {
 		Name string
 	}
@@ -70,38 +85,56 @@ func TestSlice_Index(t *testing.T) {
 	assert.Equal(t, expected1, actual1)
 }
 
-func TestSlice_Each(t *testing.T) {
+func TestSliceCollection_Values(t *testing.T) {
+	exptected := []int{1, 2, 3}
+	actual := NewSliceCollection([]int{1, 2, 3}).Values()
+	assert.ElementsMatch(t, exptected, actual)
+}
+
+func TestSliceCollection_Each(t *testing.T) {
 	expected := 6
 	actual := 0
-	NewSliceCollection([]int{1, 2, 3}).Each(func(k int, v int) bool { actual += v; return true })
+	NewSliceCollection([]int{1, 2, 3}).Each(func(v int, i int) bool { actual += v; return true })
 	assert.Equal(t, expected, actual)
 
 	expected = 3
 	actual = 0
-	NewSliceCollection([]int{1, 2, 3}).Each(func(k int, v int) bool { actual += k; return true })
+	NewSliceCollection([]int{1, 2, 3}).Each(func(v int, i int) bool { actual += i; return true })
+	assert.Equal(t, expected, actual)
+
+	expected = 3
+	actual = 0
+	NewSliceCollection([]int{1, 2, 3}).Each(func(v int, i int) bool {
+		if v > 2 {
+			return false
+		} else {
+			actual += v
+		}
+		return true
+	})
 	assert.Equal(t, expected, actual)
 }
 
-func TestSlice_Map(t *testing.T) {
+func TestSliceCollection_Map(t *testing.T) {
 	expected := []int{2, 3, 4}
-	actual := NewSliceCollection([]int{1, 2, 3}).Map(func(k int, v int) int { return v + 1 }).All()
-	assert.ElementsMatch(t, expected, actual)
+	actual := NewSliceCollection([]int{1, 2, 3}).Map(func(v int, _ int) int { return v + 1 }).All()
+	assert.Equal(t, expected, actual)
 
 	expected1 := []string{"hello world", "hello girl"}
 	actual1 := NewSliceCollection([]string{"world", "girl"}).Map(func(v string, _ int) string { return "hello " + v }).All()
-	assert.ElementsMatch(t, expected1, actual1)
+	assert.Equal(t, expected1, actual1)
 }
 
-func TestSlice_Transform(t *testing.T) {
+func TestSliceCollection_Transform(t *testing.T) {
 	expected := []int{4, 9, 16}
 	actual := NewSliceCollection([]int{1, 2, 3})
 	actual.
-		Transform(func(k int, v int) int { return v + 1 }).
-		Transform(func(k int, v int) int { return v * v })
-	assert.ElementsMatch(t, expected, actual.All())
+		Transform(func(v int, _ int) int { return v + 1 }).
+		Transform(func(v int, _ int) int { return v * v })
+	assert.Equal(t, expected, actual.All())
 }
 
-func TestSlice_Contains(t *testing.T) {
+func TestSliceCollection_Contains(t *testing.T) {
 	expected := true
 	actual := NewSliceCollection([]string{"hello", "fine"}).Contains(func(v string, _ int) bool { return v == "fine" })
 	assert.Equal(t, expected, actual)
@@ -111,10 +144,16 @@ func TestSlice_Contains(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestSlice_Filter(t *testing.T) {
+func TestSliceCollection_Empty(t *testing.T) {
+	expected := true
+	actual := NewSliceCollection([]string{}).Empty()
+	assert.Equal(t, expected, actual)
+}
+
+func TestSliceCollection_Filter(t *testing.T) {
 	expected := []int{1, 2, 3}
 	actual := NewSliceCollection([]int{1, 2, 3, 4, 5, 6}).
-		Filter(func(_, x int) bool { return x <= 3 }).
+		Filter(func(v, _ int) bool { return v <= 3 }).
 		All()
 	assert.ElementsMatch(t, expected, actual)
 
@@ -129,12 +168,12 @@ func TestSlice_Filter(t *testing.T) {
 	people := []People{{Name: "jack", Age: 12}, {Name: "bob", Age: 32}, {Name: "jack", Age: 23}}
 	expected2 := people[2]
 	actual2, _ := NewSliceCollection(people).
-		Filter(func(x People, _ int) bool { return x.Name == "jack" && x.Age == 23 }).
+		Filter(func(p People, _ int) bool { return p.Name == "jack" && p.Age == 23 }).
 		First()
 	assert.Equal(t, expected2, actual2)
 }
 
-func TestSlice_Except(t *testing.T) {
+func TestSliceCollection_Except(t *testing.T) {
 	expected := []int{4, 5, 6}
 	actual := NewSliceCollection([]int{1, 2, 3, 4, 5, 6}).
 		Reject(func(x int) bool { return x <= 3 }).
@@ -153,7 +192,7 @@ func TestSlice_Except(t *testing.T) {
 	assert.ElementsMatch(t, expected2, actual2)
 }
 
-func TestSlice_Join(t *testing.T) {
+func TestSliceCollection_Join(t *testing.T) {
 	expected := "4-5-6"
 	actual := NewSliceCollection([]int{1, 2, 3, 4, 5, 6}).
 		Reject(func(x int) bool { return x <= 3 }).
@@ -161,7 +200,7 @@ func TestSlice_Join(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestSlice_Clone(t *testing.T) {
+func TestSliceCollection_Clone(t *testing.T) {
 	expected := []int{4, 5, 6}
 	actual := NewSliceCollection(expected).
 		Clone().
@@ -169,7 +208,7 @@ func TestSlice_Clone(t *testing.T) {
 	assert.ElementsMatch(t, expected, actual)
 }
 
-func TestSlice_Tap(t *testing.T) {
+func TestSliceCollection_Tap(t *testing.T) {
 	expected := 3
 	actual := 0
 	NewSliceCollection([]int{4, 5, 6}).
@@ -180,7 +219,7 @@ func TestSlice_Tap(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestSlice_ToJson(t *testing.T) {
+func TestSliceCollection_ToJson(t *testing.T) {
 	expected := "[2,3]"
 	bytes, _ := NewSliceCollection([]int{2, 3}).ToJson()
 	actual := string(bytes)
@@ -205,6 +244,12 @@ func TestSliceCollection_Pop(t *testing.T) {
 	assert.Equal(t, expected, actual.All())
 	assert.Equal(t, 3, l)
 	assert.Equal(t, true, ok)
+
+	expected1 := 0
+	actual = NewSliceCollection([]int{})
+	l, ok = actual.Pop()
+	assert.Equal(t, expected1, l)
+	assert.Equal(t, false, ok)
 }
 
 func TestSliceCollection_Push(t *testing.T) {
@@ -290,7 +335,7 @@ func TestGroupBy(t *testing.T) {
 }
 
 func TestSliceCollection_Shuffle(t *testing.T) {
-	t.Logf("%+v", NewSliceCollection([]int{1, 2, 3, 4, 5}).Shuffle().All())
+	assert.NotEqual(t, []int{1, 2, 3, 4, 5, 6, 7}, NewSliceCollection([]int{1, 2, 3, 4, 5, 6, 7}).Shuffle().All())
 }
 
 func TestSliceCollection_Concat(t *testing.T) {
