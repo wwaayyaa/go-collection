@@ -94,3 +94,27 @@ func TestMapCollection_Pull(t *testing.T) {
 	assert.Equal(t, v, 0)
 	assert.Equal(t, expected, actual.All())
 }
+
+func TestMapCollection_Union(t *testing.T) {
+	expected := map[string]int{"a": 1, "b": 2}
+	actual := NewMapCollection(map[string]int{"a": 1}).Union(map[string]int{"b": 2}).All()
+	assert.Equal(t, expected, actual)
+}
+
+func TestMapCollection_Intersect(t *testing.T) {
+	expected := map[string]int{"a": 1}
+	actual := NewMapCollection(map[string]int{"a": 1, "b": 2}).Intersect(map[string]int{"a": 1, "c": 3}).All()
+	assert.Equal(t, expected, actual)
+}
+
+func TestMapCollection_Diff(t *testing.T) {
+	expected := map[string]int{"b": 2}
+	actual := NewMapCollection(map[string]int{"a": 1, "b": 2}).Diff(map[string]int{"a": 1, "c": 3}).All()
+	assert.Equal(t, expected, actual)
+}
+
+func TestMapCollection_SymmetricDiff(t *testing.T) {
+	expected := map[string]int{"b": 2, "c": 3}
+	actual := NewMapCollection(map[string]int{"a": 1, "b": 2}).SymmetricDiff(map[string]int{"a": 1, "c": 3}).All()
+	assert.Equal(t, expected, actual)
+}

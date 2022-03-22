@@ -79,3 +79,35 @@ func (co *MapCollection[K, V]) Pull(key K) (v V, _ bool) {
 	}
 	return
 }
+
+func (co *MapCollection[K, V]) Union(items map[K]V) *MapCollection[K, V] {
+	for k, v := range items {
+		co.items[k] = v
+	}
+
+	return co
+}
+
+func (co *MapCollection[K, V]) Intersect(items map[K]V) *MapCollection[K, V] {
+	ret := NewMapCollection(map[K]V{})
+	for k := range co.items {
+		if v, ok := items[k]; ok {
+			ret.items[k] = v
+		}
+	}
+	return ret
+}
+
+func (co *MapCollection[K, V]) Diff(items map[K]V) *MapCollection[K, V] {
+	ret := NewMapCollection(map[K]V{})
+	for k, v := range co.items {
+		if _, ok := items[k]; !ok {
+			ret.items[k] = v
+		}
+	}
+	return ret
+}
+
+func (co *MapCollection[K, V]) SymmetricDiff(items map[K]V) *MapCollection[K, V] {
+	return co.Diff(items).Union(NewMapCollection(items).Diff(co.items).All())
+}
