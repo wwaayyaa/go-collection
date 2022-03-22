@@ -15,18 +15,22 @@ func NewMapCollection[K comparable, V any](v map[K]V) *MapCollection[K, V] {
 func (co *MapCollection[K, V]) All() map[K]V {
 	return co.items
 }
+
 func (co *MapCollection[K, V]) Count() int {
 	return len(co.items)
 }
+
 func (co *MapCollection[K, V]) Empty() bool {
 	return co.Count() == 0
 }
+
 func (co *MapCollection[K, V]) Keys() (keys []K) {
 	for k, _ := range co.items {
 		keys = append(keys, k)
 	}
 	return keys
 }
+
 func (co *MapCollection[K, V]) Values() (values []V) {
 	for _, v := range co.items {
 		values = append(values, v)
@@ -67,6 +71,7 @@ func (co *MapCollection[K, V]) Get(key K) (value V, _ bool) {
 		return value, false
 	}
 }
+
 func (co *MapCollection[K, V]) Put(key K, value V) *MapCollection[K, V] {
 	co.items[key] = value
 	return co

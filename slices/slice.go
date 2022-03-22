@@ -10,7 +10,7 @@ import (
 /*
 TODO
 The following functions are achievable and will be updated soon：
-  forget delete concat sortBy sortByDesc splice pluck
+  delete sortBy sortByDesc splice pluck
   sum avg max min median
 
 The following features require version 1.19 to allow methods to have type parameters. Because most of them return arbitrary types on demand.
@@ -18,8 +18,6 @@ The following features require version 1.19 to allow methods to have type parame
 	func (co *SliceCollection[T]) Reduce[R any](fn func(R, T) R, R) R{
 		* This R is the type we want
 	}
-
-  when  keyBy
 */
 
 type SliceCollection[T any] struct {
@@ -78,7 +76,6 @@ func (co *SliceCollection[T]) Index(fn func(T, int) bool) int {
 	return -1
 }
 
-//Each cannot change self
 func (co *SliceCollection[T]) Each(fn func(T, int) bool) *SliceCollection[T] {
 	for i, v := range co.items {
 		if !fn(v, i) {
@@ -120,6 +117,7 @@ func (co *SliceCollection[T]) Filter(fn func(T, int) bool) *SliceCollection[T] {
 	}
 	return NewSliceCollection(ret)
 }
+
 func (co *SliceCollection[T]) Reject(fn func(T) bool) *SliceCollection[T] {
 	var ret []T
 	for _, v := range co.items {
